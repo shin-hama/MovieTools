@@ -1,4 +1,3 @@
-from os import PathLike
 from pathlib import Path
 
 from PIL import Image, ImageFont, ImageDraw
@@ -36,7 +35,7 @@ class Imaging:
             stroke_width=4,
         )
 
-    def paste(self, image_path: PathLike, xy: tuple[int, int], width: int = None):
+    def paste(self, image_path: str, xy: tuple[int, int], width: int = None):
         pasted = Image.open(image_path)
         pasted = pasted.resize((width or pasted.width, pasted.height * width // pasted.width))
         self.img.paste(pasted, xy)

@@ -2,7 +2,7 @@ import os
 
 import dotenv
 
-from movie_tools.exchange_rate import imaging, rate
+from movie_tools.exchange_rate import imaging, oxr_client
 
 
 dotenv.load_dotenv("./.env")
@@ -36,32 +36,38 @@ def get_flag(name: str) -> str:
     return f"src/movie_tools/exchange_rate/flags/{name}.png"
 
 
-def main():
-
-    rate_client = rate.Client(os.environ.get("OXRATE_APP_ID"))
+def main(fee: int):
+    rate_client = oxr_client.Client(os.environ.get("OXRATE_APP_ID"))
     result = rate_client.get_latest()
 
     image = imaging.Imaging()
 
     width, height = image.img.size
+
+    # Create JPY Header
+    start_x = 715
+    start_y = 200
+    flag_width = 100
+    flag_text_space = 24
+    jpy = result.rates["JPY"]
+    image.paste(get_flag("JPY"), (start_x, start_y), width=flag_width)
+    image.write(f"JPY: {fee:,} ¥", (start_x + flag_width + flag_text_space, start_y), size=64)
+
+    # Create exchanged fees for each countries
     margin_x = 128
     space_x = 104
     space_y = 56
     unit_width = 338
     unit_height = 66
-
-    jpy = result.rates["JPY"]
-    image.paste(get_flag("JPY"), (715, 200), width=100)
-    image.write(f"JPY: {jpy}", (715 + 100 + 24, 200), size=64)
-
     for (i, name) in enumerate(flags):
         x = i % 4 * (unit_width + space_x) + margin_x
-        y = i // 4 * (unit_height + space_y) + 356
-        image.paste(get_flag(name), (x, y), width=100)
-        value = result.rates.get(name, 0)
-        image.write(f"{name}: {value}", (x + 120, y), size=40)
+        y = i // 4 * (unit_height + space_y) + start_y + flag_width + space_y
+        image.paste(get_flag(name), (x, y), width=flag_width)
+        rate = result.rates[name]
+        image.write(f"{name}: {fee * rate / jpy:,.6g}", (x + flag_width + flag_text_space, y + 19), size=40)
 
     image.save("./test.png")
 
 
-main()
+if __name__ == "__main__":
+    main(14000)
