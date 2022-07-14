@@ -19,9 +19,10 @@ def main():
     margin = 20
 
     for (i, [key, value]) in enumerate(result.rates.items()):
-        x = i % 18 * 100 + margin
+        x = i % 4 * 400 + margin
         y = i // 18 * 100 + margin
-        image.write(f"{key}: {int(value)}", (x, y), size=20)
+        image.paste("src/movie_tools/exchange_rate/flags/Japan.png", (x, y), width=100)
+        image.write(f"{key}: {int(value)}", (x + 120, y), size=20)
 
     image.save("./test.png")
 
