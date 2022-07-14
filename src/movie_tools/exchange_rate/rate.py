@@ -1,4 +1,14 @@
+from dataclasses import dataclass
 import requests
+
+
+@dataclass
+class RatesResponse:
+    disclaimer: str
+    license: str
+    timestamp: int
+    base: str
+    rates: dict[str, float]
 
 
 class Client(object):
@@ -7,30 +17,12 @@ class Client(object):
         self.app_id = app_id
         self.session = requests.Session()
 
-    def get_currencies(self):
-        """
-        Get a JSON list of all currency symbols available from the Open
-        Exchange Rates API, along with their full names.
-        ref. https://oxr.readme.io/docs/currencies-json
-        """
-        return self.__request("currencies.json")
-
-    def get_latest(self, base=None, symbols=None):
+    def get_latest(self, base=None, symbols=None) -> RatesResponse:
         """
         Get latest data.
         ref. https://oxr.readme.io/docs/latest-json
         """
-        return self.__get_exchange_rates("latest.json", base, symbols)
-
-    def convert(self, value, from_symbol, to_symbol):
-        """
-        Convert any money value from one currency to another at the latest
-        API rates.
-        ref. https://oxr.readme.io/docs/convert
-        """
-        endpoint = "convert/{}/{}/{}".format(value, from_symbol, to_symbol)
-        payload = {"app_id": self.app_id}
-        return self.__request(endpoint, payload)
+        return RatesResponse(**self.__get_exchange_rates("latest.json", base, symbols))
 
     def __request(self, endpoint, payload=None):
         url = self.api_base + "/" + endpoint
