@@ -33,7 +33,7 @@ class Imaging:
             fill=(255, 255, 255),
             font=font,
             stroke_fill="black",
-            stroke_width=10,
+            stroke_width=4,
         )
 
     def paste(self, image_path: PathLike, xy: tuple[int, int], width: int = None):
