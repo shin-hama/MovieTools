@@ -4,14 +4,14 @@
 # See instructions for running these code samples locally:
 # https://developers.google.com/explorer-help/code-samples#python
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 import io
 import os
 import pickle
 
 from dacite import from_dict
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseDownload
+from googleapiclient.http import MediaInMemoryUpload, MediaIoBaseDownload
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
@@ -35,6 +35,14 @@ class CaptionSnippet:
     isDraft: bool
     isAutoSynced: bool
     status: str
+
+
+@dataclass
+class UploadCaptionSnippet:
+    videoId: str
+    language: str
+    name: str
+    isDraft: bool = False
 
 
 @dataclass
@@ -79,27 +87,42 @@ class YouTubeClient:
         return build(API_SERVICE_NAME, API_VERSION, credentials=creds)
 
     def get_captions(self):
-
         request = self.youtube.captions().list(part="id,snippet", videoId="iSQCc_1CiyE")
         response = request.execute()
 
         res = from_dict(CaptionResponse, response)
         return res
 
-    def get_caption(self, id: str):
-
+    def get_caption(self, id: str) -> bytes:
         request = self.youtube.captions().download(id=id)
-        # TODO: For this request to work, you must replace "YOUR_FILE"
-        #       with the location where the downloaded content should be written.
-        fh = io.FileIO("downloaded.sbv", "wb")
+        fh = io.BytesIO()
 
         download = MediaIoBaseDownload(fh, request)
         complete = False
         while not complete:
             status, complete = download.next_chunk()
-        print(status)
+        return fh.getvalue()
+
+    def upload_caption(self, caption: bytes, snippet: UploadCaptionSnippet):
+        request = self.youtube.captions().insert(
+            part="snippet",
+            body={"snippet": asdict(snippet)},
+            media_body=MediaInMemoryUpload(caption),
+        )
+        response = request.execute()
+
+        print(response)
+
+    def delete_caption(self, id: str):
+        request = self.youtube.captions().delete(id=id)
+        request.execute()
 
 
 if __name__ == "__main__":
     client = YouTubeClient()
-    client.get_caption("MRglHYjRG6_L71lEOICdvvyhJRApqRxZ")
+    video_id = "iSQCc_1CiyE"
+    # captions = client.get_captions()
+    # print(captions)
+    data = client.get_caption("MRglHYjRG6_L71lEOICdvvyhJRApqRxZ")
+    snippet = UploadCaptionSnippet(language="fr", name="France", videoId=video_id)
+    client.upload_caption(data, snippet)
