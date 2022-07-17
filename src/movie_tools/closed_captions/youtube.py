@@ -112,6 +112,7 @@ class YouTubeClient:
         response = request.execute()
 
         print(response)
+        return response
 
     def delete_caption(self, id: str):
         request = self.youtube.captions().delete(id=id)

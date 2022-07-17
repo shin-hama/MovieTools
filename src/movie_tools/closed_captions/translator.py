@@ -1,42 +1,12 @@
 import os
-from typing import Union
+from typing import TypeVar
 
 import deepl
 import dotenv
 
 dotenv.load_dotenv(".env")
 
-
-langs = [
-    "BG",
-    "CS",
-    "DA",
-    "DE",
-    "EL",
-    "EN-GB",
-    "EN-US",
-    "ES",
-    "ET",
-    "FI",
-    "FR",
-    "HU",
-    "ID",
-    "IT",
-    "JA",
-    "LT",
-    "LV",
-    "NL",
-    "PL",
-    "PT-PT",
-    "PT-BR",
-    "RO",
-    "RU",
-    "SK",
-    "SL",
-    "SV",
-    "TR",
-    "ZH",
-]
+T = TypeVar("T", int, str)
 
 
 class Translator:
@@ -45,7 +15,18 @@ class Translator:
         auth_key = os.environ.get("DEEPL_API_KEY")
         self.translator = deepl.Translator(auth_key)
 
-    def translate_text(self, text: Union[str, list[str]], target_lang: str):
-        result = self.translator.translate_text(text, target_lang=target_lang)
+    def translate_text(self, text: T, target_lang: str) -> T:
+        if isinstance(text, str):
+            result = self.translator.translate_text(text, target_lang=target_lang)
+            return result.text
+        elif isinstance(text, list):
+            result = self.translator.translate_text(text, target_lang=target_lang)
+            return [text.text for text in result]
+        else:
+            raise NotImplementedError(f"Cannot translate type of {type(text)}")
 
-        return [text.text for text in result]
+
+if __name__ == "__main__":
+    t = Translator()
+    test = t.translate_text("こんにちは", "EN-US")
+    print(test)
