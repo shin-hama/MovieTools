@@ -36,13 +36,11 @@ def get_flag(name: str) -> str:
     return f"src/movie_tools/exchange_rate/flags/{name}.png"
 
 
-def main(fee: int):
-    rate_client = oxr_client.Client(os.environ.get("OXRATE_APP_ID"))
+def main(fee: int) -> None:
+    rate_client = oxr_client.Client(os.environ.get("OXRATE_APP_ID", ""))
     result = rate_client.get_latest()
 
     image = imaging.Imaging()
-
-    width, height = image.img.size
 
     # Create JPY Header
     start_x = 715

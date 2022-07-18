@@ -26,11 +26,11 @@ supported = {
 }
 
 
-def main():
+def main() -> None:
     client = YouTubeClient()
     video_id = "iSQCc_1CiyE"
-    # captions = client.get_captions()
-    # print(captions)
+    captions = client.get_captions(video_id)
+    print(captions)
     data = client.get_caption("MRglHYjRG6_L71lEOICdvvyhJRApqRxZ")
     text = data.decode("utf-8")
 

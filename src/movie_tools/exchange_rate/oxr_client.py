@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any, Iterable, Union
 import requests
 
 
@@ -12,19 +13,19 @@ class RatesResponse:
 
 
 class Client(object):
-    def __init__(self, app_id, api_base="https://openexchangerates.org/api/"):
+    def __init__(self, app_id: str, api_base: str = "https://openexchangerates.org/api/") -> None:
         self.api_base = api_base.rstrip("/")
         self.app_id = app_id
         self.session = requests.Session()
 
-    def get_latest(self, base=None, symbols=None) -> RatesResponse:
+    def get_latest(self, base: str = None, symbols: Union[str, Iterable[Any]] = None) -> RatesResponse:
         """
         Get latest data.
         ref. https://oxr.readme.io/docs/latest-json
         """
         return RatesResponse(**self.__get_exchange_rates("latest.json", base, symbols))
 
-    def __request(self, endpoint, payload=None):
+    def __request(self, endpoint: str, payload: dict[str, str] = None) -> dict[str, Any]:
         url = self.api_base + "/" + endpoint
         request = requests.Request("GET", url, params=payload)
         prepared = request.prepare()
@@ -37,7 +38,13 @@ class Client(object):
             raise OXRDecodeError(request, response)
         return json
 
-    def __get_exchange_rates(self, endpoint, base, symbols, payload=None):
+    def __get_exchange_rates(
+        self,
+        endpoint: str,
+        base: Union[str, None],
+        symbols: Union[str, Iterable[Any], None],
+        payload: dict[str, Any] = None,
+    ) -> dict[str, Any]:
         if payload is None:
             payload = dict()
         payload["app_id"] = self.app_id
@@ -53,7 +60,7 @@ class Client(object):
 class OXRError(Exception):
     """Open Exchange Rates Error"""
 
-    def __init__(self, req, resp):
+    def __init__(self, req: Any, resp: Any) -> None:
         super(OXRError, self).__init__()
         self.request = req
         self.response = resp

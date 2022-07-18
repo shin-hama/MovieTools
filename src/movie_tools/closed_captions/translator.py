@@ -10,7 +10,7 @@ T = TypeVar("T", int, str)
 
 
 class Translator:
-    def __init__(self):
+    def __init__(self) -> None:
 
         auth_key = os.environ.get("DEEPL_API_KEY")
         self.translator = deepl.Translator(auth_key)

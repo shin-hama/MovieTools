@@ -8,6 +8,7 @@ from dataclasses import dataclass, asdict
 import io
 import os
 import pickle
+from typing import Any
 
 from dacite import from_dict
 from googleapiclient.discovery import build
@@ -61,11 +62,11 @@ class CaptionResponse:
 
 
 class YouTubeClient:
-    def __init__(self):
+    def __init__(self) -> None:
         # Get credentials and create an API client
         self.youtube = self.get_authenticated_service()
 
-    def get_authenticated_service(self):
+    def get_authenticated_service(self) -> Any:
         creds = None
         # The file token.pickle stores the user's access and refresh tokens, and is
         # created automatically when the authorization flow completes for the first
@@ -86,15 +87,15 @@ class YouTubeClient:
 
         return build(API_SERVICE_NAME, API_VERSION, credentials=creds)
 
-    def get_captions(self):
-        request = self.youtube.captions().list(part="id,snippet", videoId="iSQCc_1CiyE")
+    def get_captions(self, video_id: str) -> CaptionResponse:
+        request = self.youtube.captions().list(part="id,snippet", videoId=video_id)
         response = request.execute()
 
         res = from_dict(CaptionResponse, response)
         return res
 
-    def get_caption(self, id: str) -> bytes:
-        request = self.youtube.captions().download(id=id)
+    def get_caption(self, video_id: str) -> bytes:
+        request = self.youtube.captions().download(id=video_id)
         fh = io.BytesIO()
 
         download = MediaIoBaseDownload(fh, request)
@@ -103,18 +104,17 @@ class YouTubeClient:
             status, complete = download.next_chunk()
         return fh.getvalue()
 
-    def upload_caption(self, caption: bytes, snippet: UploadCaptionSnippet):
+    def upload_caption(self, caption: bytes, snippet: UploadCaptionSnippet) -> Caption:
         request = self.youtube.captions().insert(
             part="snippet",
             body={"snippet": asdict(snippet)},
             media_body=MediaInMemoryUpload(caption),
         )
-        response = request.execute()
+        response: dict[str, Any] = request.execute()
 
-        print(response)
-        return response
+        return from_dict(Caption, response)
 
-    def delete_caption(self, id: str):
+    def delete_caption(self, id: str) -> None:
         request = self.youtube.captions().delete(id=id)
         request.execute()
 
