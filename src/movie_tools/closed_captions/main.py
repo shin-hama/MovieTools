@@ -26,12 +26,15 @@ supported = {
 }
 
 
-def main() -> None:
+def main(video_id: str) -> None:
     client = YouTubeClient()
-    video_id = "iSQCc_1CiyE"
     captions = client.get_captions(video_id)
-    print(captions)
-    data = client.get_caption("MRglHYjRG6_L71lEOICdvvyhJRApqRxZ")
+    jp_caption = list(filter(lambda cap: cap.snippet.language == "ja", captions.items))
+    if len(jp_caption) == 0:
+        print("ERROR: Japanese caption that is used for translating base does not found.")
+        return
+
+    data = client.get_caption(jp_caption[0].id)
     text = data.decode("utf-8")
 
     for key, name in supported.items():
@@ -43,4 +46,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    video_id = input("Input video id: ")
+    print(f"Convert captions for {video_id}")
+    main(video_id)

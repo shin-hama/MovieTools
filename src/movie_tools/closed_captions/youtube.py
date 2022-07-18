@@ -94,8 +94,8 @@ class YouTubeClient:
         res = from_dict(CaptionResponse, response)
         return res
 
-    def get_caption(self, video_id: str) -> bytes:
-        request = self.youtube.captions().download(id=video_id)
+    def get_caption(self, caption_id: str) -> bytes:
+        request = self.youtube.captions().download(id=caption_id)
         fh = io.BytesIO()
 
         download = MediaIoBaseDownload(fh, request)
