@@ -46,6 +46,7 @@ def main(video_id: str) -> None:
 
         snippet = UploadCaptionSnippet(language=key, name=name, videoId=video_id)
         client.upload_caption(translated.encode("utf-8"), snippet)
+        print(f"INFO: Completed to convert to {name}")
 
 
 if __name__ == "__main__":
