@@ -4,6 +4,7 @@ from movie_tools.closed_captions.youtube import UploadCaptionSnippet, YouTubeCli
 
 supported = {
     "BG": "Bulgarian",
+    "ZH": "Chinese",
     "CS": "Czech",
     "DE": "German",
     "EL": "Greek",
@@ -22,7 +23,6 @@ supported = {
     "SK": "Slovak",
     "SV": "Swedish",
     "TR": "Turkish",
-    "ZH": "Chinese",
 }
 
 
@@ -38,11 +38,14 @@ def main(video_id: str) -> None:
     text = data.decode("utf-8")
 
     for key, name in supported.items():
+        if any([item.snippet.language.lower() == key.lower() for item in captions.items]):
+            print(f"Already exists {key}")
+            continue
+        print(f"Translate to {key}")
         translated = Translator().translate_text(text, target_lang=key)
 
         snippet = UploadCaptionSnippet(language=key, name=name, videoId=video_id)
         client.upload_caption(translated.encode("utf-8"), snippet)
-        break
 
 
 if __name__ == "__main__":

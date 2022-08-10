@@ -124,6 +124,7 @@ if __name__ == "__main__":
     video_id = "iSQCc_1CiyE"
     # captions = client.get_captions()
     # print(captions)
-    data = client.get_caption("MRglHYjRG6_L71lEOICdvvyhJRApqRxZ")
-    snippet = UploadCaptionSnippet(language="fr", name="France", videoId=video_id)
-    client.upload_caption(data, snippet)
+    # data = client.get_caption("MRglHYjRG6_L71lEOICdvvyhJRApqRxZ")
+    # print(data)
+    # snippet = UploadCaptionSnippet(language="fr", name="France", videoId=video_id)
+    # client.upload_caption(data, snippet)
